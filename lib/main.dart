@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:task/DIoHelper.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
+
+import 'history.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(Generator());
   DioHelper.init();
 }
@@ -23,7 +28,7 @@ class RandomGenerator extends StatelessWidget {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(),
       body: //Padding(
-          GenerationWidget(),
+      GenerationWidget(),
     );
   }
 }
@@ -35,6 +40,8 @@ class GenerationWidget extends StatefulWidget {
 
 class _GenerationWidgetState extends State<GenerationWidget> {
   String result = '';
+  static List<String> historyList = [];
+
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +62,7 @@ class _GenerationWidgetState extends State<GenerationWidget> {
                   ).then((value) {
                     setState(() {
                       result = (value.data[0]['random']).toString();
+                      historyList.add(result + ' retrieved at ' + DateTime.now().toString());
                     });
                   });
                 }),
@@ -69,5 +77,10 @@ class _GenerationWidgetState extends State<GenerationWidget> {
         ],
       ),
     );
+  }
+  setAll(){
+    var map = Map.fromIterable(historyList);
+    FirebaseFirestore.instance.collection('numbers').doc('RH6848WDISrU4FIkk1gJ').set(map);
+
   }
 }
